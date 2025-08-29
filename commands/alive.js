@@ -8,11 +8,12 @@ async function aliveCommand(sock, chatId, message) {
 
     // 📝 Caption options
     const captions = [
-      "*Mickey-Tech Bot is Online!*\n\n🚀 Ready to serve with instant actions!",
-      "*Mickey-Tech iko hewani!*\n\n💰 Bofya *PAY NOW* au *NIME LIPA* kwa haraka!",
-      "*Bot iko macho kama tai!*\n\n🎯 Tuma amri yoyote sasa hivi!",
-      "*Mickey-Tech is vibing!*\n\n🎉 Let’s make tech fun and fast!",
-      "*Bot iko tayari!*\n\n📲 WhatsApp actions? Just say the word!"
+  "*Mickey-Tech iko hewani!*\n\n🚀 Tayari kukuhudumia papo hapo—sema tu!",
+  "*Bot iko mbioni kama pikipiki ya bodaboda!*\n\n💰 Bofya *LIPA SASA* au *NIMELIPA* bila stress!",
+  "*Macho ya bot ni kama tai!*\n\n🎯 Tuma amri yoyote—iko tayari kuchukua hatua!",
+  "*Mickey-Tech inatingisha!*\n\n🎉 Teknolojia ya kibabe, haraka na bila longolongo!",
+  "*Bot iko fiti kabisa!*\n\n📲 WhatsApp commands zako? Leta tu, twende kazi!"
+];
     ];
     const randomCaption = captions[Math.floor(Math.random() * captions.length)];
 
