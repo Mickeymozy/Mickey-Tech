@@ -31,7 +31,7 @@ async function videoCommand(sock, chatId, message) {
 
     // 🔁 Jaribu API mbalimbali
     const apis = [
-      `https://noobs-api.top/dipto/ytDl3?link=https://youtube.com/watch?v=${videoId}&format=mp4`,
+      `https://api.princetechn.com/api/download/ytdlv2?apikey=prince&url=${videoId}&format=mp4`,
       `https://bk9.fun/download/alldownload?url=${videoId}`,
       `https://yt-api-url.example.com/download?videoId=${videoId}` // Add more if needed
     ];
