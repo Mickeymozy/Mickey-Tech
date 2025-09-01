@@ -54,12 +54,9 @@ module.exports = async function videoCommand(sock, chatId, message) {
           filename = response.data.result.download.filename || filename;
           break;
         }
-        // If API returns a URL (not direct download), send it to user for manual download
-        if (response.data?.url) {
-          await sock.sendMessage(chatId, {
-            text: `🔗 Link ya video: ${response.data.url}\n\nBonyeza link hii ili kudownload video yako.`
-          }, { quoted: message });
-          return;
+        // If API returns a URL (not direct download), save it as a fallback
+        if (response.data?.url && !videoDownloadUrl) {
+          videoDownloadUrl = response.data.url;
         }
       } catch (err) {
         continue;
