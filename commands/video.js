@@ -25,14 +25,13 @@ module.exports = async function videoCommand(sock, chatId, message) {
     const videoId = video.videoId;
     const videoTitle = video.title;
     const videoThumbnail = video.thumbnail;
-
     // Send thumbnail
     await sock.sendMessage(chatId, {
       image: { url: videoThumbnail },
       caption: `*${videoTitle}*\n\n⏳ Inapakua video yako...`
     }, { quoted: message });
 
-    // Try APIs for download link
+    // Try APIs for download link (use videoId only)
     const apis = [
       `https://api.princetechn.com/api/download/ytdlv2?apikey=prince&url=${videoId}&format=mp4`,
       `https://bk9.fun/download/alldownload?url=${videoId}`,
