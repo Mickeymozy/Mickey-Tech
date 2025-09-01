@@ -6,8 +6,8 @@ const channelInfo = {
         forwardingScore: 1,
         isForwarded: true,
         forwardedNewsletterMessageInfo: {
-            newsletterJid: '120363161513685998@newsletter',
-            newsletterName: 'KnightBot MD',
+           newsletterJid: '120363422552152940@newsletter',
+             newsletterName: 'Mickey-Tech-Bot',,
             serverMessageId: -1
         }
     }
