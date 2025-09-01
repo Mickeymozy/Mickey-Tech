@@ -1,16 +1,3 @@
-/**
- * Mickey-Tech-Bot - A WhatsApp Bot
- * Copyright (c) 2025 Mickey
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the MIT License.
- * 
- * Credits:
- * - Developed and maintained by Mickey
- * - Powered by Mickey-tech-bot
- * - Baileys Library by @adiwajshing
- * - Pair Code implementation inspired by TechGod143 & DGXEON
- */
 require('./settings')
 const { Boom } = require('@hapi/boom')
 const fs = require('fs')
@@ -22,10 +9,10 @@ const { handleMessages, handleGroupParticipantUpdate, handleStatus } = require('
 const PhoneNumber = require('awesome-phonenumber')
 const { imageToWebp, videoToWebp, writeExifImg, writeExifVid } = require('./lib/exif')
 const { smsg, isUrl, generateMessageTag, getBuffer, getSizeMedia, fetch, await, sleep, reSize } = require('./lib/myfunc')
-const { 
+const {
     default: makeWASocket,
-    useMultiFileAuthState, 
-    DisconnectReason, 
+    useMultiFileAuthState,
+    DisconnectReason,
     fetchLatestBaileysVersion,
     generateForwardMessageContent,
     prepareWAMessageMedia,
@@ -39,6 +26,7 @@ const {
     delay
 } = require("@whiskeysockets/baileys")
 const NodeCache = require("node-cache")
+// Using a lightweight persisted store instead of makeInMemoryStore (compat across versions)
 const pino = require("pino")
 const readline = require("readline")
 const { parsePhoneNumber } = require("libphonenumber-js")
@@ -46,49 +34,36 @@ const { PHONENUMBER_MCC } = require('@whiskeysockets/baileys/lib/Utils/generics'
 const { rmSync, existsSync } = require('fs')
 const { join } = require('path')
 
-// Create a store object with required methods
-const store = {
-    messages: {},
-    contacts: {},
-    chats: {},
-    groupMetadata: async (jid) => {
-        return {}
-    },
-    bind: function(ev) {
-        // Handle events
-        ev.on('messages.upsert', ({ messages }) => {
-            messages.forEach(msg => {
-                if (msg.key && msg.key.remoteJid) {
-                    this.messages[msg.key.remoteJid] = this.messages[msg.key.remoteJid] || {}
-                    this.messages[msg.key.remoteJid][msg.key.id] = msg
-                }
-            })
-        })
-        
-        ev.on('contacts.update', (contacts) => {
-            contacts.forEach(contact => {
-                if (contact.id) {
-                    this.contacts[contact.id] = contact
-                }
-            })
-        })
-        
-        ev.on('chats.set', (chats) => {
-            this.chats = chats
-        })
-    },
-    loadMessage: async (jid, id) => {
-        return this.messages[jid]?.[id] || null
-    }
-}
+// Import lightweight store
+const store = require('./lib/lightweight_store')
 
-let phoneNumber = "255612130873"
+// Initialize store
+store.readFromFile()
+const settings = require('./settings')
+setInterval(() => store.writeToFile(), settings.storeWriteInterval || 10000)
+
+// Memory optimization - Force garbage collection if available
+setInterval(() => {
+    if (global.gc) {
+        global.gc()
+        console.log('🧹 Garbage collection completed')
+    }
+}, 60_000) // every 1 minute
+
+// Memory monitoring - Restart if RAM gets too high
+setInterval(() => {
+    const used = process.memoryUsage().rss / 1024 / 1024
+    if (used > 400) {
+        console.log('⚠️ RAM too high (>400MB), restarting bot...')
+        process.exit(1) // Panel will auto-restart
+    }
+}, 30_000) // check every 30 seconds
+
+let phoneNumber = "911234567890"
 let owner = JSON.parse(fs.readFileSync('./data/owner.json'))
 
-global.botname = "MICKEY-TECH-BOT"
+global.botname = "KNIGHT BOT"
 global.themeemoji = "•"
-
-const settings = require('./settings')
 const pairingCode = !!phoneNumber || process.argv.includes("--pairing-code")
 const useMobile = process.argv.includes("--mobile")
 
@@ -103,7 +78,7 @@ const question = (text) => {
     }
 }
 
-         
+
 async function startXeonBotInc() {
     let { version, isLatest } = await fetchLatestBaileysVersion()
     const { state, saveCreds } = await useMultiFileAuthState(`./session`)
@@ -120,6 +95,7 @@ async function startXeonBotInc() {
         },
         markOnlineOnConnect: true,
         generateHighQualityLinkPreview: true,
+        syncFullHistory: true,
         getMessage: async (key) => {
             let jid = jidNormalizedUser(key.remoteJid)
             let msg = await store.loadMessage(jid, key.id)
@@ -143,21 +119,26 @@ async function startXeonBotInc() {
             }
             if (!XeonBotInc.public && !mek.key.fromMe && chatUpdate.type === 'notify') return
             if (mek.key.id.startsWith('BAE5') && mek.key.id.length === 16) return
-            
+
+            // Clear message retry cache to prevent memory bloat
+            if (XeonBotInc?.msgRetryCounterCache) {
+                XeonBotInc.msgRetryCounterCache.clear()
+            }
+
             try {
                 await handleMessages(XeonBotInc, chatUpdate, true)
             } catch (err) {
                 console.error("Error in handleMessages:", err)
                 // Only try to send error message if we have a valid chatId
                 if (mek.key && mek.key.remoteJid) {
-                    await XeonBotInc.sendMessage(mek.key.remoteJid, { 
+                    await XeonBotInc.sendMessage(mek.key.remoteJid, {
                         text: '❌ An error occurred while processing your message.',
                         contextInfo: {
                             forwardingScore: 1,
                             isForwarded: true,
                             forwardedNewsletterMessageInfo: {
-                                newsletterJid: '120363422552152940@newsletter',
-                                newsletterName: 'Mickey-Tech-Bot',
+                                newsletterJid: '120363161513685998@newsletter',
+                                newsletterName: 'KnightBot MD',
                                 serverMessageId: -1
                             }
                         }
@@ -187,7 +168,7 @@ async function startXeonBotInc() {
 
     XeonBotInc.getName = (jid, withoutContact = false) => {
         id = XeonBotInc.decodeJid(jid)
-        withoutContact = XeonBotInc.withoutContact || withoutContact 
+        withoutContact = XeonBotInc.withoutContact || withoutContact
         let v
         if (id.endsWith("@g.us")) return new Promise(async (resolve) => {
             v = store.contacts[id] || {}
@@ -247,17 +228,17 @@ async function startXeonBotInc() {
         if (connection == "open") {
             console.log(chalk.magenta(` `))
             console.log(chalk.yellow(`🌿Connected to => ` + JSON.stringify(XeonBotInc.user, null, 2)))
-            
+
             const botNumber = XeonBotInc.user.id.split(':')[0] + '@s.whatsapp.net';
-            await XeonBotInc.sendMessage(botNumber, { 
-                text: ` Bot Connected Successfully!\n\n⏰ Time: ${new Date().toLocaleString()}\n✅ Status: Online and Ready!
+            await XeonBotInc.sendMessage(botNumber, {
+                text: `🤖 Bot Connected Successfully!\n\n⏰ Time: ${new Date().toLocaleString()}\n✅ Status: Online and Ready!
                 \n✅Make sure to join below channel`,
                 contextInfo: {
                     forwardingScore: 1,
                     isForwarded: true,
                     forwardedNewsletterMessageInfo: {
-                        newsletterJid: '120363422552152940@newsletter',
-                        newsletterName: 'Mickey-Tech-Bot',
+                        newsletterJid: '120363161513685998@newsletter',
+                        newsletterName: 'KnightBot MD',
                         serverMessageId: -1
                     }
                 }
@@ -266,24 +247,28 @@ async function startXeonBotInc() {
             await delay(1999)
             console.log(chalk.yellow(`\n\n                  ${chalk.bold.blue(`[ ${global.botname || 'KNIGHT BOT'} ]`)}\n\n`))
             console.log(chalk.cyan(`< ================================================== >`))
-            console.log(chalk.magenta(`\n${global.themeemoji || '•'} YT CHANNEL: MickeyMozy`))
-            console.log(chalk.magenta(`${global.themeemoji || '•'} GITHUB: Mickeymozy`))
+            console.log(chalk.magenta(`\n${global.themeemoji || '•'} YT CHANNEL: MR UNIQUE HACKER`))
+            console.log(chalk.magenta(`${global.themeemoji || '•'} GITHUB: mrunqiuehacker`))
             console.log(chalk.magenta(`${global.themeemoji || '•'} WA NUMBER: ${owner}`))
-            console.log(chalk.magenta(`${global.themeemoji || '•'} CREDIT: Mickey Team`))
+            console.log(chalk.magenta(`${global.themeemoji || '•'} CREDIT: MR UNIQUE HACKER`))
             console.log(chalk.green(`${global.themeemoji || '•'} 🤖 Bot Connected Successfully! ✅`))
         }
-        if (
-            connection === "close" &&
-            lastDisconnect &&
-            lastDisconnect.error &&
-            lastDisconnect.error.output.statusCode != 401
-        ) {
-            startXeonBotInc()
+        if (connection === 'close') {
+            const statusCode = lastDisconnect?.error?.output?.statusCode
+            if (statusCode === DisconnectReason.loggedOut || statusCode === 401) {
+                try {
+                    rmSync('./session', { recursive: true, force: true })
+                } catch { }
+                console.log(chalk.red('Session logged out. Please re-authenticate.'))
+                startXeonBotInc()
+            } else {
+                startXeonBotInc()
+            }
         }
     })
 
     XeonBotInc.ev.on('creds.update', saveCreds)
-    
+
     XeonBotInc.ev.on('group-participants.update', async (update) => {
         await handleGroupParticipantUpdate(XeonBotInc, update);
     });
