@@ -62,7 +62,27 @@ module.exports = async function videoCommand(sock, chatId, message) {
       }
     }
 
-    if (!videoDownloadUrl) return sendError('Imeshindikana kupata link ya kudownload video kutoka API yoyote.');
+    if (!videoDownloadUrl) {
+      // Fallback: use ytdl-core to get direct video link
+      try {
+        const ytdl = require('ytdl-core');
+        const videoFormats = await ytdl.getInfo(videoId);
+        const format = ytdl.chooseFormat(videoFormats.formats, { quality: '18', filter: 'audioandvideo' });
+        if (format && format.url) {
+          videoDownloadUrl = format.url;
+        } else {
+          await sock.sendMessage(chatId, {
+            text: `❌ Samahani, imeshindikana kupata link ya kudownload video. Jaribu tena baadaye au tumia jina tofauti la video.`
+          }, { quoted: message });
+          return;
+        }
+      } catch (err) {
+        await sock.sendMessage(chatId, {
+          text: `❌ Samahani, imeshindikana kudownload video moja kwa moja. (${err.message})`
+        }, { quoted: message });
+        return;
+      }
+    }
 
     // Send video
     await sock.sendMessage(chatId, {
