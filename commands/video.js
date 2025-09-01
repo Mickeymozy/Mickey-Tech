@@ -66,7 +66,8 @@ module.exports = async function videoCommand(sock, chatId, message) {
       // Fallback: use ytdl-core to get direct video link
       try {
         const ytdl = require('ytdl-core');
-        const videoFormats = await ytdl.getInfo(videoId);
+        const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
+        const videoFormats = await ytdl.getInfo(videoUrl);
         const format = ytdl.chooseFormat(videoFormats.formats, { quality: '18', filter: 'audioandvideo' });
         if (format && format.url) {
           videoDownloadUrl = format.url;
