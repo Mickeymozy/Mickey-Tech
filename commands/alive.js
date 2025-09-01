@@ -4,7 +4,7 @@ const fs = require("fs");
 async function aliveCommand(sock, chatId, message) {
   try {
     // 🌐 Image URL
-    const imageUrl = "https://ibb.co/B2HDkY1d.jpg"; // Replace with your actual image URL
+    const imageUrl = "https://files.catbox.moe/kzlbjw.jpg"; // Replace with your actual image URL
 
     // 📝 Caption options
     const captions = [
