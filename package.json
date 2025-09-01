@@ -9,7 +9,7 @@
     "docker:build": "docker build -t Mickey .",
     "docker:run": "docker run -e SESSION_ID=$SESSION_ID Mickey"
   },
-  "keywords": [
+ "keywords": [
     "whatsapp-bot"
   ],
   "author": "",
@@ -33,7 +33,7 @@
     "fs-extra": "^11.2.0",
     "gtts": "^0.2.1",
     "human-readable": "^0.2.1",
-    "jimp": "^0.16.13",
+    "jimp": "^1.6.0",
     "jsdom": "^22.1.0",
     "libphonenumber-js": "^1.11.18",
     "libsignal": "^2.0.1",
@@ -65,5 +65,11 @@
     "youtubedl-core": "^4.11.7",
     "yt-search": "^2.12.1",
     "ytdl-core": "^4.11.5"
+  },
+  "overrides": {
+    "jimp": "^1.6.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
