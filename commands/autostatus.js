@@ -1,4 +1,4 @@
-const fs = require('fs');
+4const fs = require('fs');
 const path = require('path');
 
 const channelInfo = {
@@ -6,8 +6,8 @@ const channelInfo = {
         forwardingScore: 1,
         isForwarded: true,
         forwardedNewsletterMessageInfo: {
-           newsletterJid: '120363422552152940@newsletter',
-             newsletterName: 'Mickey-Tech-Bot',,
+            newsletterJid: '120363422552152940@newsletter',
+            newsletterName: 'Mickey-Tech-Bot',
             serverMessageId: -1
         }
     }
