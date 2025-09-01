@@ -784,6 +784,9 @@ async function handleMessages(sock, messageUpdate, printLog) {
                     });
                 }
 
+            case userMessage === '.grouplink':
+                await groupLinkCommand(sock, chatId, message);
+                break;
             default:
                 if (isGroup) {
                     // Handle non-command group messages
