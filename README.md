@@ -38,11 +38,10 @@ Deploy the bot and easily connect it to your WhatsApp account by pair code. Clic
 
 
 <div align="center">
-  <a href="#" target="_blank">
-  <img src="https://img.shields.io/badge/GET%20PAIR%20CODE-Easy%20Method-ff4d4d?style=for-the-badge" alt="Generate Pair Code"/>
+  <a href="https://creads-pair-web.onrender.com/" target="_blank">
+    <img src="https://img.shields.io/badge/GET%20PAIR%20CODE-Easy%20Method-ff4d4d?style=for-the-badge" alt="Generate Pair Code"/>
   </a>
 </div>
-
 
 ### After getting creds.json file, upload it to session folder
 
