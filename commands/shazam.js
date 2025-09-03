@@ -1,11 +1,9 @@
-const acrcloud = require('acrcloud');
 
-// Initialize ACRCloud with your credentials
-const acr = new acrcloud({
-    host: 'identify-eu-west-1.acrcloud.com',
-    access_key: 'c33c767d683f78bd17d4bd4991955d81',
-    access_secret: 'bvgaIAEtADBTbLwiPGYlxupWqkNGIjT7J9Ag2vIu'
-});
+const axios = require('axios');
+const FormData = require('form-data');
+
+// Replace with your actual API endpoint
+const API_URL = 'https://apis-keith.vercel.app/search/yts?query=';
 
 /**
  * Shazam command handler
@@ -14,25 +12,37 @@ const acr = new acrcloud({
 async function shazamCommand(sock, chatId, message) {
     try {
         // Use quoted message if available, otherwise current message
-        const q = message.quotedMessage || message;
-        const mime = q.mimetype || q.mediaType || '';
+        let q = message.message?.extendedTextMessage?.contextInfo?.quotedMessage ?
+            message.message.extendedTextMessage.contextInfo.quotedMessage : message;
+        let mime = q.mimetype || q.mediaType || '';
+
+        // Try to fallback to direct message media type
+        if (!mime && message.message?.audioMessage) mime = 'audio';
+        if (!mime && message.message?.videoMessage) mime = 'video';
 
         // Only proceed if it's an audio or video
         if (/video|audio/.test(mime)) {
             // Download the media
             const buffer = await sock.downloadMediaMessage(q);
-            // Identify the music
-            const result = await acr.identify(buffer);
-            const { status, metadata } = result;
+            if (!buffer) throw new Error('Could not download media. Please try again.');
 
-            if (status.code !== 0) throw new Error(status.msg);
+            // Build form data for API
+            const form = new FormData();
+            form.append('file', buffer, { filename: 'audio.mp3' });
 
-            // Extract music info
-            const music = metadata.music[0];
+            // Send request to API URL
+            const response = await axios.post(API_URL, form, {
+                headers: form.getHeaders()
+            });
+            const result = response.data;
+
+            // Parse response (update this according to your API's response format)
+            if (!result || !result.success || !result.music || !result.music.length) throw new Error('No music info found.');
+            const music = result.music[0];
             const title = music.title || '-';
-            const artists = music.artists ? music.artists.map(v => v.name).join(', ') : '-';
-            const album = music.album ? music.album.name : '-';
-            const genres = music.genres ? music.genres.map(v => v.name).join(', ') : '-';
+            const artists = music.artists ? music.artists.join(', ') : '-';
+            const album = music.album || '-';
+            const genres = music.genres ? music.genres.join(', ') : '-';
             const releaseDate = music.release_date || '-';
 
             // Build the reply message
