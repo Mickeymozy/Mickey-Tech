@@ -95,9 +95,13 @@ async function facebookCommand(sock, chatId, message) {
         }
 
     } catch (error) {
+        let apiErrorMsg = '';
+        if (error.response && error.response.data) {
+            apiErrorMsg = `\nAPI Response: ${JSON.stringify(error.response.data)}`;
+        }
         console.error('Error in Facebook command:', error);
         await sock.sendMessage(chatId, { 
-            text: "An error occurred. API might be down. Error: " + error.message
+            text: `An error occurred while processing your request.\nAPI might be down or the video is not available.\nError: ${error.message}${apiErrorMsg}`
         });
     }
 }
