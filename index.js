@@ -54,15 +54,15 @@ setInterval(() => {
 setInterval(() => {
     const used = process.memoryUsage().rss / 1024 / 1024
     if (used > 400) {
-        console.log('⚠️ RAM too high (>400MB), restarting bot...')
+        console.log('⚠ RAM too high (>400MB), restarting bot...')
         process.exit(1) // Panel will auto-restart
     }
 }, 30_000) // check every 30 seconds
 
-let phoneNumber = "255711765335"
+let phoneNumber = "255778018545"
 let owner = JSON.parse(fs.readFileSync('./data/owner.json'))
 
-global.botname = "MICKEY0TECH-BOT"
+global.botname = "𝗦 𝗔 𝗡 𝗧 𝗔-𝗟 𝗢 𝗙 𝗧"
 global.themeemoji = "•"
 const pairingCode = !!phoneNumber || process.argv.includes("--pairing-code")
 const useMobile = process.argv.includes("--mobile")
@@ -81,14 +81,14 @@ const question = (text) => {
 
 async function startXeonBotInc() {
     let { version, isLatest } = await fetchLatestBaileysVersion()
-    const { state, saveCreds } = await useMultiFileAuthState(`./session`)
+    const { state, saveCreds } = await useMultiFileAuthState(./session)
     const msgRetryCounterCache = new NodeCache()
 
     const XeonBotInc = makeWASocket({
         version,
         logger: pino({ level: 'silent' }),
         printQRInTerminal: !pairingCode,
-        browser: ["safari", "20.0.17"],
+        browser: ["Ubuntu", "Chrome", "20.0.04"],
         auth: {
             creds: state.creds,
             keys: makeCacheableSignalKeyStore(state.keys, pino({ level: "fatal" }).child({ level: "fatal" })),
@@ -137,8 +137,8 @@ async function startXeonBotInc() {
                             forwardingScore: 1,
                             isForwarded: true,
                             forwardedNewsletterMessageInfo: {
-                                newsletterJid: '120363422552152940@newsletter',
-                                newsletterName: 'Mickey-Tech-Bot',
+                                newsletterJid: '120363398106360290@newsletter',
+                                newsletterName: '𝗦 𝗔 𝗡 𝗧 𝗔-𝗟 𝗢 𝗙 𝗧',
                                 serverMessageId: -1
                             }
                         }
@@ -214,7 +214,7 @@ async function startXeonBotInc() {
                 let code = await XeonBotInc.requestPairingCode(phoneNumber)
                 code = code?.match(/.{1,4}/g)?.join("-") || code
                 console.log(chalk.black(chalk.bgGreen(`Your Pairing Code : `)), chalk.black(chalk.white(code)))
-                console.log(chalk.yellow(`\nPlease enter this code in your WhatsApp app:\n1. Open WhatsApp\n2. Go to Settings > Linked Devices\n3. Tap "Link a Device"\n4. Enter the code shown above`))
+                console.log(chalk.yellow(\nPlease enter this code in your WhatsApp app:\n1. Open WhatsApp\n2. Go to Settings > Linked Devices\n3. Tap "Link a Device"\n4. Enter the code shown above))
             } catch (error) {
                 console.error('Error requesting pairing code:', error)
                 console.log(chalk.red('Failed to get pairing code. Please check your phone number and try again.'))
@@ -231,27 +231,27 @@ async function startXeonBotInc() {
 
             const botNumber = XeonBotInc.user.id.split(':')[0] + '@s.whatsapp.net';
             await XeonBotInc.sendMessage(botNumber, {
-                text: `🤖 Bot Connected Successfully!\n\n⏰ Time: ${new Date().toLocaleString()}\n✅ Status: Online and Ready!
-                \n✅Make sure to join below channel`,
+                text: ` Bot Connected Successfully!\n\n Time: ${new Date().toLocaleString()}\n Status: Online and Ready!
+                \nMake sure to join below channel`,
                 contextInfo: {
                     forwardingScore: 1,
                     isForwarded: true,
                     forwardedNewsletterMessageInfo: {
-                        newsletterJid: '120363161513685998@newsletter',
-                        newsletterName: 'KnightBot MD',
+                        newsletterJid: '120363398106360290@newsletter',
+                        newsletterName: '𝗦 𝗔 𝗡 𝗧 𝗔-𝗟 𝗢 𝗙 𝗧',
                         serverMessageId: -1
                     }
                 }
             });
 
             await delay(1999)
-            console.log(chalk.yellow(`\n\n                  ${chalk.bold.blue(`[ ${global.botname || 'KNIGHT BOT'} ]`)}\n\n`))
-            console.log(chalk.cyan(`< ================================================== >`))
-            console.log(chalk.magenta(`\n${global.themeemoji || '•'} YT CHANNEL: MR UNIQUE HACKER`))
-            console.log(chalk.magenta(`${global.themeemoji || '•'} GITHUB: mrunqiuehacker`))
-            console.log(chalk.magenta(`${global.themeemoji || '•'} WA NUMBER: ${owner}`))
-            console.log(chalk.magenta(`${global.themeemoji || '•'} CREDIT: MR UNIQUE HACKER`))
-            console.log(chalk.green(`${global.themeemoji || '•'} 🤖 Bot Connected Successfully! ✅`))
+            console.log(chalk.yellow(\n\n                  ${chalk.bold.blue([ ${global.botname || '𝗦 𝗔 𝗡 𝗧 𝗔-𝗟 𝗢 𝗙 𝗧'} ])}\n\n))
+            console.log(chalk.cyan(< ================================================== >))
+            console.log(chalk.magenta(\n${global.themeemoji || '•'} YT CHANNEL: LOFT))
+            console.log(chalk.magenta(${global.themeemoji || '•'} GITHUB: LOFT))
+            console.log(chalk.magenta(${global.themeemoji || '•'} WA NUMBER: ${owner}))
+            console.log(chalk.magenta(${global.themeemoji || '•'} CREDIT: LOFT))
+            console.log(chalk.green(`${global.themeemoji || '•'}  Bot Connected Successfully! `))
         }
         if (connection === 'close') {
             const statusCode = lastDisconnect?.error?.output?.statusCode
@@ -307,11 +307,10 @@ process.on('unhandledRejection', (err) => {
 let file = require.resolve(__filename)
 fs.watchFile(file, () => {
     fs.unwatchFile(file)
-    console.log(chalk.redBright(`Update ${__filename}`))
+    console.log(chalk.redBright(Update ${__filename}))
     delete require.cache[file]
     require(file)
 })
-
 // Minimal HTTP server for platforms like Heroku
 const http = require('http');
 const PORT = process.env.PORT || 3000;
@@ -319,5 +318,5 @@ http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end('Bot is running!');
 }).listen(PORT, () => {
-    console.log(`HTTP server listening on port ${PORT}`);
+    console.log(HTTP server listening on port ${PORT});
 });
