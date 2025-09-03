@@ -87,19 +87,20 @@ async function handleChatbotCommand(sock, chatId, message, match) {
 
     // If it's the bot owner, allow access immediately
     if (isOwner) {
+        const contextType = chatId.endsWith('@g.us') ? 'group' : 'chat';
         if (match === 'on') {
             await showTyping(sock, chatId);
             if (data.chatbot[chatId]) {
                 return sock.sendMessage(chatId, { 
-                    text: '*Chatbot is already enabled for this group*',
+                    text: `*Chatbot is already enabled for this ${contextType}*`,
                     quoted: message
                 });
             }
             data.chatbot[chatId] = true;
             saveUserGroupData(data);
-            console.log(`✅ Chatbot enabled for group ${chatId}`);
+            console.log(`✅ Chatbot enabled for ${contextType} ${chatId}`);
             return sock.sendMessage(chatId, { 
-                text: '*Chatbot has been enabled for this group*',
+                text: `*Chatbot has been enabled for this ${contextType}*`,
                 quoted: message
             });
         }
@@ -108,15 +109,15 @@ async function handleChatbotCommand(sock, chatId, message, match) {
             await showTyping(sock, chatId);
             if (!data.chatbot[chatId]) {
                 return sock.sendMessage(chatId, { 
-                    text: '*Chatbot is already disabled for this group*',
+                    text: `*Chatbot is already disabled for this ${contextType}*`,
                     quoted: message
                 });
             }
             delete data.chatbot[chatId];
             saveUserGroupData(data);
-            console.log(`✅ Chatbot disabled for group ${chatId}`);
+            console.log(`✅ Chatbot disabled for ${contextType} ${chatId}`);
             return sock.sendMessage(chatId, { 
-                text: '*Chatbot has been disabled for this group*',
+                text: `*Chatbot has been disabled for this ${contextType}*`,
                 quoted: message
             });
         }
@@ -142,35 +143,37 @@ async function handleChatbotCommand(sock, chatId, message, match) {
     // In private chats, allow anyone to enable/disable
 
     if (match === 'on') {
+        const contextType = chatId.endsWith('@g.us') ? 'group' : 'chat';
         await showTyping(sock, chatId);
         if (data.chatbot[chatId]) {
             return sock.sendMessage(chatId, { 
-                text: '*Chatbot is already enabled for this group*',
+                text: `*Chatbot is already enabled for this ${contextType}*`,
                 quoted: message
             });
         }
         data.chatbot[chatId] = true;
         saveUserGroupData(data);
-        console.log(`✅ Chatbot enabled for group ${chatId}`);
+        console.log(`✅ Chatbot enabled for ${contextType} ${chatId}`);
         return sock.sendMessage(chatId, { 
-            text: '*Chatbot has been enabled for this group*',
+            text: `*Chatbot has been enabled for this ${contextType}*`,
             quoted: message
         });
     }
 
     if (match === 'off') {
+        const contextType = chatId.endsWith('@g.us') ? 'group' : 'chat';
         await showTyping(sock, chatId);
         if (!data.chatbot[chatId]) {
             return sock.sendMessage(chatId, { 
-                text: '*Chatbot is already disabled for this group*',
+                text: `*Chatbot is already disabled for this ${contextType}*`,
                 quoted: message
             });
         }
         delete data.chatbot[chatId];
         saveUserGroupData(data);
-        console.log(`✅ Chatbot disabled for group ${chatId}`);
+        console.log(`✅ Chatbot disabled for ${contextType} ${chatId}`);
         return sock.sendMessage(chatId, { 
-            text: '*Chatbot has been disabled for this group*',
+            text: `*Chatbot has been disabled for this ${contextType}*`,
             quoted: message
         });
     }
