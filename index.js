@@ -62,7 +62,7 @@ setInterval(() => {
 let phoneNumber = "255778018545"
 let owner = JSON.parse(fs.readFileSync('./data/owner.json'))
 
-global.botname = "𝗦 𝗔 𝗡 𝗧 𝗔-𝗟 𝗢 𝗙 𝗧"
+global.botname = "Mickey-Tech-Bot"
 global.themeemoji = "•"
 const pairingCode = !!phoneNumber || process.argv.includes("--pairing-code")
 const useMobile = process.argv.includes("--mobile")
@@ -81,7 +81,7 @@ const question = (text) => {
 
 async function startXeonBotInc() {
     let { version, isLatest } = await fetchLatestBaileysVersion()
-    const { state, saveCreds } = await useMultiFileAuthState(./session)
+    const { state, saveCreds } = await useMultiFileAuthState('./session')
     const msgRetryCounterCache = new NodeCache()
 
     const XeonBotInc = makeWASocket({
@@ -138,7 +138,7 @@ async function startXeonBotInc() {
                             isForwarded: true,
                             forwardedNewsletterMessageInfo: {
                                 newsletterJid: '120363398106360290@newsletter',
-                                newsletterName: '𝗦 𝗔 𝗡 𝗧 𝗔-𝗟 𝗢 𝗙 𝗧',
+                                newsletterName: 'Mickey-Tech-Bot',
                                 serverMessageId: -1
                             }
                         }
@@ -214,7 +214,7 @@ async function startXeonBotInc() {
                 let code = await XeonBotInc.requestPairingCode(phoneNumber)
                 code = code?.match(/.{1,4}/g)?.join("-") || code
                 console.log(chalk.black(chalk.bgGreen(`Your Pairing Code : `)), chalk.black(chalk.white(code)))
-                console.log(chalk.yellow(\nPlease enter this code in your WhatsApp app:\n1. Open WhatsApp\n2. Go to Settings > Linked Devices\n3. Tap "Link a Device"\n4. Enter the code shown above))
+                console.log(chalk.yellow(`\nPlease enter this code in your WhatsApp app:\n1. Open WhatsApp\n2. Go to Settings > Linked Devices\n3. Tap "Link a Device"\n4. Enter the code shown above`))
             } catch (error) {
                 console.error('Error requesting pairing code:', error)
                 console.log(chalk.red('Failed to get pairing code. Please check your phone number and try again.'))
@@ -238,19 +238,19 @@ async function startXeonBotInc() {
                     isForwarded: true,
                     forwardedNewsletterMessageInfo: {
                         newsletterJid: '120363398106360290@newsletter',
-                        newsletterName: '𝗦 𝗔 𝗡 𝗧 𝗔-𝗟 𝗢 𝗙 𝗧',
+                        newsletterName: 'Mickey',
                         serverMessageId: -1
                     }
                 }
             });
 
             await delay(1999)
-            console.log(chalk.yellow(\n\n                  ${chalk.bold.blue([ ${global.botname || '𝗦 𝗔 𝗡 𝗧 𝗔-𝗟 𝗢 𝗙 𝗧'} ])}\n\n))
-            console.log(chalk.cyan(< ================================================== >))
-            console.log(chalk.magenta(\n${global.themeemoji || '•'} YT CHANNEL: LOFT))
-            console.log(chalk.magenta(${global.themeemoji || '•'} GITHUB: LOFT))
-            console.log(chalk.magenta(${global.themeemoji || '•'} WA NUMBER: ${owner}))
-            console.log(chalk.magenta(${global.themeemoji || '•'} CREDIT: LOFT))
+            console.log(chalk.yellow(`\n\n                  ${chalk.bold.blue(`[ ${global.botname || 'MICKEY-TECH-BOT'} ]`)}\n\n`))
+            console.log(chalk.cyan('=================================================='))
+            console.log(chalk.magenta(`\n${global.themeemoji || '•'} YT CHANNEL: Mickey`))
+            console.log(chalk.magenta(`${global.themeemoji || '•'} GITHUB: MICKEY`))
+            console.log(chalk.magenta(`${global.themeemoji || '•'} WA NUMBER: ${owner}`))
+            console.log(chalk.magenta(`${global.themeemoji || '•'} CREDIT: MICKEY`))
             console.log(chalk.green(`${global.themeemoji || '•'}  Bot Connected Successfully! `))
         }
         if (connection === 'close') {
@@ -307,7 +307,7 @@ process.on('unhandledRejection', (err) => {
 let file = require.resolve(__filename)
 fs.watchFile(file, () => {
     fs.unwatchFile(file)
-    console.log(chalk.redBright(Update ${__filename}))
+    console.log(chalk.redBright(`Update ${__filename}`))
     delete require.cache[file]
     require(file)
 })
@@ -318,5 +318,5 @@ http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end('Bot is running!');
 }).listen(PORT, () => {
-    console.log(HTTP server listening on port ${PORT});
+    console.log(`HTTP server listening on port ${PORT}`);
 });
