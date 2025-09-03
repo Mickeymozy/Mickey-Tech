@@ -94,7 +94,7 @@ const { shayariCommand } = require('./commands/grouplink');
 const videoCommand = require('./commands/video');
 const { rosedayCommand } = require('./commands/roseday');
 const imagineCommand = require('./commands/imagine');
-const groupLinkCommand = require('./commands/grouplink');
+const groupLinkCommand = require('./commands/shazam');
 
 
 // Global settings
