@@ -59,7 +59,7 @@ setInterval(() => {
     }
 }, 30_000) // check every 30 seconds
 
-let phoneNumber = "255612130873"
+let phoneNumber = "255711765335"
 let owner = JSON.parse(fs.readFileSync('./data/owner.json'))
 
 global.botname = "MICKEY0TECH-BOT"
@@ -88,7 +88,7 @@ async function startXeonBotInc() {
         version,
         logger: pino({ level: 'silent' }),
         printQRInTerminal: !pairingCode,
-        browser: ["Ubuntu", "Chrome", "20.0.04"],
+        browser: ["safari", "20.0.17"],
         auth: {
             creds: state.creds,
             keys: makeCacheableSignalKeyStore(state.keys, pino({ level: "fatal" }).child({ level: "fatal" })),
