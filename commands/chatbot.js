@@ -71,7 +71,7 @@ async function handleChatbotCommand(sock, chatId, message, match) {
     if (!match) {
         await showTyping(sock, chatId);
         return sock.sendMessage(chatId, {
-            text: `*CHATBOT SETUP*\n\n*.chatbot on*\nEnable chatbot\n\n*.chatbot off*\nDisable chatbot in this group`,
+            text: `*CHATBOT SETUP*\n\n*.chatbot on*\nEnable chatbot\n\n*.chatbot off*\nDisable chatbot in this chat (group or private)`,
             quoted: message
         });
     }
@@ -122,7 +122,7 @@ async function handleChatbotCommand(sock, chatId, message, match) {
         }
     }
 
-    // For non-owners, check admin status
+    // For non-owners, check admin status only in groups
     let isAdmin = false;
     if (chatId.endsWith('@g.us')) {
         try {
@@ -131,15 +131,15 @@ async function handleChatbotCommand(sock, chatId, message, match) {
         } catch (e) {
             console.warn('⚠️ Could not fetch group metadata. Bot might not be admin.');
         }
+        if (!isAdmin && !isOwner) {
+            await showTyping(sock, chatId);
+            return sock.sendMessage(chatId, {
+                text: '❌ Only group admins or the bot owner can use this command in groups.',
+                quoted: message
+            });
+        }
     }
-
-    if (!isAdmin && !isOwner) {
-        await showTyping(sock, chatId);
-        return sock.sendMessage(chatId, {
-            text: '❌ Only group admins or the bot owner can use this command.',
-            quoted: message
-        });
-    }
+    // In private chats, allow anyone to enable/disable
 
     if (match === 'on') {
         await showTyping(sock, chatId);
@@ -190,33 +190,27 @@ async function handleChatbotResponse(sock, chatId, message, userMessage, senderI
         // Get bot's ID
         const botNumber = sock.user.id.split(':')[0] + '@s.whatsapp.net';
 
-        // Check for mentions and replies
-        let isBotMentioned = false;
-        let isReplyToBot = false;
-
-        // Check if message is a reply and contains bot mention
-        if (message.message?.extendedTextMessage) {
-            const mentionedJid = message.message.extendedTextMessage.contextInfo?.mentionedJid || [];
-            const quotedParticipant = message.message.extendedTextMessage.contextInfo?.participant;
-            
-            // Check if bot is mentioned in the reply
-            isBotMentioned = mentionedJid.some(jid => jid === botNumber);
-            
-            // Check if replying to bot's message
-            isReplyToBot = quotedParticipant === botNumber;
+        // For groups, respond only if bot is mentioned or replied to
+        let shouldRespond = true;
+        if (chatId.endsWith('@g.us')) {
+            let isBotMentioned = false;
+            let isReplyToBot = false;
+            if (message.message?.extendedTextMessage) {
+                const mentionedJid = message.message.extendedTextMessage.contextInfo?.mentionedJid || [];
+                const quotedParticipant = message.message.extendedTextMessage.contextInfo?.participant;
+                isBotMentioned = mentionedJid.some(jid => jid === botNumber);
+                isReplyToBot = quotedParticipant === botNumber;
+            } else if (message.message?.conversation) {
+                isBotMentioned = userMessage.includes(`@${botNumber.split('@')[0]}`);
+            }
+            shouldRespond = isBotMentioned || isReplyToBot;
+            if (!shouldRespond) return;
+            // Clean the message
+            if (isBotMentioned) {
+                userMessage = userMessage.replace(new RegExp(`@${botNumber.split('@')[0]}`, 'g'), '').trim();
+            }
         }
-        // Also check regular mentions in conversation
-        else if (message.message?.conversation) {
-            isBotMentioned = userMessage.includes(`@${botNumber.split('@')[0]}`);
-        }
-
-        if (!isBotMentioned && !isReplyToBot) return;
-
-        // Clean the message
-        let cleanedMessage = userMessage;
-        if (isBotMentioned) {
-            cleanedMessage = cleanedMessage.replace(new RegExp(`@${botNumber.split('@')[0]}`, 'g'), '').trim();
-        }
+        // In private chats, always respond
 
         // Initialize user's chat memory if not exists
         if (!chatMemory.messages.has(senderId)) {
