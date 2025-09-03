@@ -575,20 +575,19 @@ async function handleMessages(sock, messageUpdate, printLog) {
                 await antibadwordCommand(sock, chatId, message, senderId, isSenderAdmin);
                 break;
             case userMessage.startsWith('.chatbot'):
-                if (!isGroup) {
-                    await sock.sendMessage(chatId, { text: 'This command can only be used in groups.', ...channelInfo });
-                    return;
+                // Check if sender is admin or bot owner in groups only
+                let allowChatbot = true;
+                if (isGroup) {
+                    const chatbotAdminStatus = await isAdmin(sock, chatId, senderId);
+                    if (!chatbotAdminStatus.isSenderAdmin && !message.key.fromMe) {
+                        await sock.sendMessage(chatId, { text: '*Only admins or bot owner can use this command*', ...channelInfo });
+                        allowChatbot = false;
+                    }
                 }
-
-                // Check if sender is admin or bot owner
-                const chatbotAdminStatus = await isAdmin(sock, chatId, senderId);
-                if (!chatbotAdminStatus.isSenderAdmin && !message.key.fromMe) {
-                    await sock.sendMessage(chatId, { text: '*Only admins or bot owner can use this command*', ...channelInfo });
-                    return;
+                if (allowChatbot) {
+                    const match = userMessage.slice(8).trim();
+                    await handleChatbotCommand(sock, chatId, message, match);
                 }
-
-                const match = userMessage.slice(8).trim();
-                await handleChatbotCommand(sock, chatId, message, match);
                 break;
             case userMessage.startsWith('.take'):
                 const takeArgs = rawText.slice(5).trim().split(' ');
