@@ -2,63 +2,69 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 
+// Optional: Random Swahili error messages
+const errorMessages = [
+    "😓 Pole sana, video haijapatikana. Jaribu tena baadaye.",
+    "📡 API imegoma kidogo leo. Subiri kidogo tafadhali.",
+    "🚫 Link ya Facebook si sahihi au video imefutwa.",
+    "⏳ Tuna matatizo ya mtandao. Jaribu tena baada ya muda."
+];
+
+function getRandomErrorMessage() {
+    return errorMessages[Math.floor(Math.random() * errorMessages.length)];
+}
+
 async function facebookCommand(sock, chatId, message) {
     try {
         const text = message.message?.conversation || message.message?.extendedTextMessage?.text;
         const url = text.split(' ').slice(1).join(' ').trim();
-        
+
         if (!url) {
-            return await sock.sendMessage(chatId, { 
-                text: "Please provide a Facebook video URL.\nExample: .fb https://www.facebook.com/..."
+            return await sock.sendMessage(chatId, {
+                text: "Tafadhali tuma link ya video ya Facebook.\nMfano: .fb https://www.facebook.com/..."
             });
         }
 
-        // Validate Facebook URL
         if (!url.includes('facebook.com')) {
-            return await sock.sendMessage(chatId, { 
-                text: "That is not a Facebook link."
+            return await sock.sendMessage(chatId, {
+                text: "Hiyo si link ya Facebook. Tafadhali angalia tena."
             });
         }
 
-        // Send loading reaction
         await sock.sendMessage(chatId, {
             react: { text: '🔄', key: message.key }
         });
 
-        // Fetch video data from API
         const response = await axios.get(`https://delirius-apiofc.vercel.app/download/facebook?url=${url}`);
         const data = response.data;
 
-        if (!data || data.status !== 200 || !data.facebook || !data.facebook.sdVideo) {
-            return await sock.sendMessage(chatId, { 
-                text: "Sorry the API didn't respond correctly. Please try Again later!"
+        if (response.status !== 200 || !data.facebook) {
+            return await sock.sendMessage(chatId, {
+                text: getRandomErrorMessage()
             });
         }
 
         const fbvid = data.facebook.sdVideo;
 
         if (!fbvid) {
-            return await sock.sendMessage(chatId, { 
-                text: "Wrong Facebook data. Please ensure the video exists."
+            return await sock.sendMessage(chatId, {
+                text: "📹 Video haipatikani kwa ubora wa kawaida (SD). Jaribu video nyingine au hakikisha ni ya hadharani."
             });
         }
 
-        // Create temp directory if it doesn't exist
         const tmpDir = path.join(process.cwd(), 'tmp');
         if (!fs.existsSync(tmpDir)) {
             fs.mkdirSync(tmpDir, { recursive: true });
         }
 
-        // Generate temp file path
         const tempFile = path.join(tmpDir, `fb_${Date.now()}.mp4`);
 
-        // Download the video
         const videoResponse = await axios({
             method: 'GET',
             url: fbvid,
             responseType: 'stream',
             headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                'User-Agent': 'Mozilla/5.0',
                 'Accept': 'video/mp4,video/*;q=0.9,*/*;q=0.8',
                 'Accept-Language': 'en-US,en;q=0.5',
                 'Range': 'bytes=0-',
@@ -75,19 +81,16 @@ async function facebookCommand(sock, chatId, message) {
             writer.on('error', reject);
         });
 
-        // Check if file was downloaded successfully
         if (!fs.existsSync(tempFile) || fs.statSync(tempFile).size === 0) {
-            throw new Error('Failed to download video');
+            throw new Error('Video haijapakuliwa vizuri.');
         }
 
-        // Send the video
         await sock.sendMessage(chatId, {
             video: { url: tempFile },
             mimetype: "video/mp4",
-            caption: "DOWNLOAD BY MICKEY-TECH-BOT"
+            caption: "📥 DOWNLOAD BY MICKEY-TECH-BOT"
         }, { quoted: message });
 
-        // Clean up temp file
         try {
             fs.unlinkSync(tempFile);
         } catch (err) {
@@ -97,13 +100,15 @@ async function facebookCommand(sock, chatId, message) {
     } catch (error) {
         let apiErrorMsg = '';
         if (error.response && error.response.data) {
-            apiErrorMsg = `\nAPI Response: ${JSON.stringify(error.response.data)}`;
+            apiErrorMsg = `\n📡 Majibu ya API: ${JSON.stringify(error.response.data)}`;
         }
-        console.error('Error in Facebook command:', error);
-        await sock.sendMessage(chatId, { 
-            text: `An error occurred while processing your request.\nAPI might be down or the video is not available.\nError: ${error.message}${apiErrorMsg}`
+
+        console.error('🚨 Error in Facebook command:', error);
+
+        await sock.sendMessage(chatId, {
+            text: `😢 Hitilafu imetokea wakati wa kuchakata ombi lako.\nInawezekana API iko chini au video haipo.\n\n🔍 Hitilafu: ${error.message}${apiErrorMsg}`
         });
     }
 }
 
-module.exports = facebookCommand; 
+module.exports = facebookCommand;
