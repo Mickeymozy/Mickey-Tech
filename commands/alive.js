@@ -3,8 +3,13 @@ const fs = require("fs");
 
 async function aliveCommand(sock, chatId, message) {
   try {
-    // 🌐 Image URL
-    const imageUrl = "https://files.catbox.moe/fuixq3.jpg"; // Replace with your actual image URL
+    // 🌐 Custom banner and redirect
+    const banner = 'https://lazackorganisation.my.id/mtaju.jpg';
+    const redes = 'https://lazackorganisation.my.id';
+    const botname = settings.botname || "Mickey-Tech";
+    const name = message.pushName || "mtumiaji";
+
+    const textbot = `🌸 Thank you for using *${botname}*, ${name}!\n🔔 Follow our official channel: ${redes} and support on GitHub.`;
 
     // 📝 Caption options
     const captions = [
@@ -18,12 +23,12 @@ async function aliveCommand(sock, chatId, message) {
     // 🎲 Pick random caption
     const randomCaption = captions[Math.floor(Math.random() * captions.length)];
 
-    // 🖼️ Send image with random caption
+    // 🖼️ Send banner image with caption
     await sock.sendMessage(
       chatId,
       {
-        image: { url: imageUrl },
-        caption: randomCaption,
+        image: { url: banner },
+        caption: `${randomCaption}\n\n${textbot}`,
       },
       { quoted: message }
     );
@@ -35,7 +40,7 @@ async function aliveCommand(sock, chatId, message) {
       chatId,
       {
         audio: audioBuffer,
-        mimetype: "audio/mpeg", // or "audio/mp4" depending on your file format
+        mimetype: "audio/mpeg",
       },
       { quoted: message }
     );
