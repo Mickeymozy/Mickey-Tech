@@ -26,7 +26,6 @@ async function aliveCommand(sock, chatId, message) {
     await sock.sendMessage(
       chatId,
       {
-        image: { url: 'https://whatsapp.com/channel/0029VbAcgfWDOQIUP4y8PN0P' },
         caption: `${randomCaption}\n\n${textbot}`,
       },
       { quoted: message }
