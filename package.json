@@ -24,6 +24,7 @@
     "axios": "^1.8.4",
     "chalk": "^4.1.2",
     "cheerio": "^1.0.0-rc.12",
+    "@xaviabot/fb-downloader": "^1.0.14",
     "cookie": "^0.5.0",
     "dotenv": "^16.4.5",
     "events": "^3.3.0",
