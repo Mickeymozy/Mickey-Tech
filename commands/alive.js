@@ -3,8 +3,8 @@ const fs = require("fs");
 
 async function aliveCommand(sock, chatId, message) {
   try {
-    // 🌐 Custom banner and redirect
-    const redes = 'https://whatsapp.com/channel/0029VbAcgfWDOQIUP4y8PN0P';
+    // 🌐 Redirect and bot info
+    const redes = 'https://lazackorganisation.my.id';
     const botname = settings.botname || "Mickey-Tech";
     const name = message.pushName || "mtumiaji";
 
@@ -22,11 +22,11 @@ async function aliveCommand(sock, chatId, message) {
     // 🎲 Pick random caption
     const randomCaption = captions[Math.floor(Math.random() * captions.length)];
 
-    // 🖼️ Send banner image with caption
+    // 🖼️ Send image with caption (no banner variable)
     await sock.sendMessage(
       chatId,
       {
-        image: { url: banner },
+        image: { url: 'https://lazackorganisation.my.id/mtaju.jpg' },
         caption: `${randomCaption}\n\n${textbot}`,
       },
       { quoted: message }
