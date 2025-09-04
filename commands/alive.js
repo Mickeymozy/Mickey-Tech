@@ -1,5 +1,4 @@
 const settings = require("../settings");
-const fs = require("fs");
 
 async function aliveCommand(sock, chatId, message) {
   try {
@@ -22,24 +21,10 @@ async function aliveCommand(sock, chatId, message) {
     // 🎲 Pick random caption
     const randomCaption = captions[Math.floor(Math.random() * captions.length)];
 
-    // 🖼️ Send image with caption (no banner variable)
+    // 📨 Send text-only message
     await sock.sendMessage(
       chatId,
-      {
-        caption: `${randomCaption}\n\n${textbot}`,
-      },
-      { quoted: message }
-    );
-
-    // 🔊 Load and send local audio file
-    const audioBuffer = fs.readFileSync("assets/intro1.mp3");
-
-    await sock.sendMessage(
-      chatId,
-      {
-        audio: audioBuffer,
-        mimetype: "audio/mpeg",
-      },
+      { text: `${randomCaption}\n\n${textbot}` },
       { quoted: message }
     );
 
