@@ -6,9 +6,9 @@ const getFBInfo = require('@xaviabot/fb-downloader');
 // Swahili error messages
 const errorMessages = [
     "😓 Pole sana, video haijapatikana. Jaribu tena baadaye.",
-    "📡 API imegoma kidogo leo. Subiri kidogo tafadhali.",
+    "📡 Tuna matatizo ya mtandao. Subiri kidogo tafadhali.",
     "🚫 Link ya Facebook si sahihi au video imefutwa.",
-    "⏳ Tuna matatizo ya mtandao. Jaribu tena baada ya muda."
+    "⏳ Jaribu tena baada ya muda. Kuna hitilafu ya kupakua."
 ];
 
 // Swahili captions for thumbnail preview
@@ -51,7 +51,7 @@ async function facebookCommand(sock, chatId, message) {
 
         // Send thumbnail-style preview
         await sock.sendMessage(chatId, {
-            image: { url: 'https://i.imgur.com/0ZQZ0ZQ.jpg' }, // Replace with your own hosted thumbnail
+            image: { url: 'https://i.imgur.com/0ZQZ0ZQ.jpg' }, // Replace with your own thumbnail
             caption: `📥 ${getRandomCaption()}\n\n🔗 ${url}`,
             footer: "MICKEY-TECH-BOT",
             headerType: 4
@@ -59,7 +59,7 @@ async function facebookCommand(sock, chatId, message) {
 
         // Get Facebook video info
         const fbData = await getFBInfo(url);
-        const fbvid = fbData?.sd || fbData?.hd;
+        const fbvid = fbData?.hd || fbData?.sd;
 
         if (!fbvid) {
             return await sock.sendMessage(chatId, {
@@ -74,16 +74,13 @@ async function facebookCommand(sock, chatId, message) {
 
         const tempFile = path.join(tmpDir, `fb_${Date.now()}.mp4`);
 
+        // Download video stream
         const videoResponse = await axios({
             method: 'GET',
             url: fbvid,
             responseType: 'stream',
             headers: {
                 'User-Agent': 'Mozilla/5.0',
-                'Accept': 'video/mp4,video/*;q=0.9,*/*;q=0.8',
-                'Accept-Language': 'en-US,en;q=0.5',
-                'Range': 'bytes=0-',
-                'Connection': 'keep-alive',
                 'Referer': 'https://www.facebook.com/'
             }
         });
@@ -106,6 +103,7 @@ async function facebookCommand(sock, chatId, message) {
             caption: "📥 DOWNLOAD BY MICKEY-TECH-BOT"
         }, { quoted: message });
 
+        // Clean up
         try {
             fs.unlinkSync(tempFile);
         } catch (err) {
@@ -115,8 +113,13 @@ async function facebookCommand(sock, chatId, message) {
     } catch (error) {
         console.error('🚨 Error in Facebook command:', error);
 
+        let extra = '';
+        if (error.response?.status === 429) {
+            extra = "\n⚠️ Umeomba mara nyingi sana. Subiri kidogo kabla ya kujaribu tena.";
+        }
+
         await sock.sendMessage(chatId, {
-            text: `😢 Hitilafu imetokea wakati wa kuchakata ombi lako.\nInawezekana video haipo au link si sahihi.\n\n🔍 Hitilafu: ${error.message}`
+            text: `😢 Hitilafu imetokea wakati wa kuchakata ombi lako.\n${getRandomErrorMessage()}${extra}\n\n🔍 Hitilafu: ${error.message}`
         });
     }
 }
