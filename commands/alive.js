@@ -4,8 +4,7 @@ const fs = require("fs");
 async function aliveCommand(sock, chatId, message) {
   try {
     // 🌐 Custom banner and redirect
-    const banner = 'https://lazackorganisation.my.id/mtaju.jpg';
-    const redes = 'https://lazackorganisation.my.id';
+    const redes = 'https://whatsapp.com/channel/0029VbAcgfWDOQIUP4y8PN0P';
     const botname = settings.botname || "Mickey-Tech";
     const name = message.pushName || "mtumiaji";
 
