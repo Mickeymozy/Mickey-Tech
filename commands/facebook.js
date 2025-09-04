@@ -1,6 +1,7 @@
-const axios = require('axios');
-const fs = require('fs');
+cconst fs = require('fs');
 const path = require('path');
+const axios = require('axios');
+const getFBInfo = require('@xaviabot/fb-downloader');
 
 // Optional: Random Swahili error messages
 const errorMessages = [
@@ -35,20 +36,12 @@ async function facebookCommand(sock, chatId, message) {
             react: { text: '🔄', key: message.key }
         });
 
-        const response = await axios.get(`https://delirius-apiofc.vercel.app/download/facebook?url=${url}`);
-        const data = response.data;
+        const fbData = await getFBInfo(url);
 
-        if (response.status !== 200 || !data.facebook) {
-            return await sock.sendMessage(chatId, {
-                text: getRandomErrorMessage()
-            });
-        }
-
-        const fbvid = data.facebook.sdVideo;
-
+        const fbvid = fbData?.sd || fbData?.hd;
         if (!fbvid) {
             return await sock.sendMessage(chatId, {
-                text: "📹 Video haipatikani kwa ubora wa kawaida (SD). Jaribu video nyingine au hakikisha ni ya hadharani."
+                text: "📹 Video haipatikani kwa ubora wa kawaida (SD) au HD. Jaribu video nyingine au hakikisha ni ya hadharani."
             });
         }
 
@@ -98,15 +91,10 @@ async function facebookCommand(sock, chatId, message) {
         }
 
     } catch (error) {
-        let apiErrorMsg = '';
-        if (error.response && error.response.data) {
-            apiErrorMsg = `\n📡 Majibu ya API: ${JSON.stringify(error.response.data)}`;
-        }
-
         console.error('🚨 Error in Facebook command:', error);
 
         await sock.sendMessage(chatId, {
-            text: `😢 Hitilafu imetokea wakati wa kuchakata ombi lako.\nInawezekana API iko chini au video haipo.\n\n🔍 Hitilafu: ${error.message}${apiErrorMsg}`
+            text: `😢 Hitilafu imetokea wakati wa kuchakata ombi lako.\nInawezekana video haipo au link si sahihi.\n\n🔍 Hitilafu: ${error.message}`
         });
     }
 }
