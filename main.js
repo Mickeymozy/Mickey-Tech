@@ -63,7 +63,7 @@ const { flirtCommand } = require('./commands/flirt');
 const characterCommand = require('./commands/character');
 const wastedCommand = require('./commands/wasted');
 const shipCommand = require('./commands/ship');
-const groupInfoCommand = require('./commands/groupinfo');
+const shazamCommand = require('./commands/shazam');
 const resetlinkCommand = require('./commands/resetlink');
 const staffCommand = require('./commands/staff');
 const unbanCommand = require('./commands/unban');
@@ -94,7 +94,7 @@ const { shayariCommand } = require('./commands/grouplink');
 const videoCommand = require('./commands/video');
 const { rosedayCommand } = require('./commands/roseday');
 const imagineCommand = require('./commands/imagine');
-const groupLinkCommand = require('./commands/shazam');
+const groupLinkCommand = require('./commands/grouplink');
 
 
 // Global settings
