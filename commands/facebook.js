@@ -1,9 +1,9 @@
-cconst fs = require('fs');
+const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 const getFBInfo = require('@xaviabot/fb-downloader');
 
-// Optional: Random Swahili error messages
+// Swahili error messages
 const errorMessages = [
     "😓 Pole sana, video haijapatikana. Jaribu tena baadaye.",
     "📡 API imegoma kidogo leo. Subiri kidogo tafadhali.",
@@ -11,8 +11,21 @@ const errorMessages = [
     "⏳ Tuna matatizo ya mtandao. Jaribu tena baada ya muda."
 ];
 
+// Swahili captions for thumbnail preview
+const swahiliCaptions = [
+    "🔥 Video kali kutoka Facebook!",
+    "🎬 Angalia hii sasa hivi!",
+    "📲 Pakua na ufurahie!",
+    "😎 Hii hapa, usipitwe!",
+    "💥 Bonge la video, angalia!"
+];
+
 function getRandomErrorMessage() {
     return errorMessages[Math.floor(Math.random() * errorMessages.length)];
+}
+
+function getRandomCaption() {
+    return swahiliCaptions[Math.floor(Math.random() * swahiliCaptions.length)];
 }
 
 async function facebookCommand(sock, chatId, message) {
@@ -36,9 +49,18 @@ async function facebookCommand(sock, chatId, message) {
             react: { text: '🔄', key: message.key }
         });
 
-        const fbData = await getFBInfo(url);
+        // Send thumbnail-style preview
+        await sock.sendMessage(chatId, {
+            image: { url: 'https://i.imgur.com/0ZQZ0ZQ.jpg' }, // Replace with your own hosted thumbnail
+            caption: `📥 ${getRandomCaption()}\n\n🔗 ${url}`,
+            footer: "MICKEY-TECH-BOT",
+            headerType: 4
+        }, { quoted: message });
 
+        // Get Facebook video info
+        const fbData = await getFBInfo(url);
         const fbvid = fbData?.sd || fbData?.hd;
+
         if (!fbvid) {
             return await sock.sendMessage(chatId, {
                 text: "📹 Video haipatikani kwa ubora wa kawaida (SD) au HD. Jaribu video nyingine au hakikisha ni ya hadharani."
