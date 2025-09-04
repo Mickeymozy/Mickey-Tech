@@ -4,7 +4,7 @@ const fs = require("fs");
 async function aliveCommand(sock, chatId, message) {
   try {
     // 🌐 Redirect and bot info
-    const redes = 'https://lazackorganisation.my.id';
+    const redes = 'https://whatsapp.com/channel/0029VbAcgfWDOQIUP4y8PN0P';
     const botname = settings.botname || "Mickey-Tech";
     const name = message.pushName || "mtumiaji";
 
@@ -26,7 +26,7 @@ async function aliveCommand(sock, chatId, message) {
     await sock.sendMessage(
       chatId,
       {
-        image: { url: 'https://lazackorganisation.my.id/mtaju.jpg' },
+        image: { url: 'https://whatsapp.com/channel/0029VbAcgfWDOQIUP4y8PN0P' },
         caption: `${randomCaption}\n\n${textbot}`,
       },
       { quoted: message }
