@@ -8,20 +8,27 @@ const SUPPORT_PHONE = "+255612130873";
  * @param {object} sock - WhatsApp socket instance
  * @param {string} chatId - Recipient chat ID
  */
-async function githubCommand(sock, chatId) {
-  const infoText = [
-    *📁 *Mickey-Tech-Bot Repo ya Kibinafsi*
-
-Karibu kwenye makao rasmi ya **Mickey-Tech Bot** — suluhisho la haraka, kisasa, na la Kitanzania.
-
-✅ **Nunua ufikiaji** kwa masasisho ya kipekee na msaada wa haraka.  
-📢 **Jiunge na channel yetu ya Telegram** kwa taarifa mpya, matoleo, na mazungumzo ya ndani ya timu.
-
-_Imewezeshwa na Mickey-Mozy — teknolojia kwa ujasiri._
-  ].join("\n");
-
+async function githubCommand(sock, chatId, message) {
+  // Inform user to contact the owner and send vCard
+  const infoText = 'ℹ️ Ili kupata taarifa zaidi, tafadhali wasiliana na mimi moja kwa moja kwa kupiga simu au kutuma ujumbe. Ninakutumia mawasiliano yangu sasa.';
   await sock.sendMessage(chatId, { text: infoText });
-  await sock.sendMessage(chatId, { text: `🔗 Repo: ${REPO_URL}\n📞 Support: ${SUPPORT_PHONE}` });
+  // Send owner's vCard
+  await sock.sendMessage(chatId, {
+    contacts: {
+      displayName: 'Mickey Owner',
+      contacts: [
+        {
+          vcard: [
+            'BEGIN:VCARD',
+            'VERSION:3.0',
+            'FN:Mickey Owner',
+            'TEL;type=CELL;waid=255612130873:+255 612 130 873',
+            'END:VCARD'
+          ].join('\n')
+        }
+      ]
+    }
+  });
 }
 
 module.exports = { githubCommand };
