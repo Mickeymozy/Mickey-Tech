@@ -10,8 +10,8 @@ MICKEY-TECH-BOT is a WhatsApp bot built using the Baileys library for group mana
 </div> 
 
 <div align="center"> 
-  <a href="https://youtube.com/@mr_unique_hacker"> 
-  <img src="https://github.com/mruniquehacker/Knightbot-MD/blob/main/assets/bot_image.jpg" alt="MICKEY-TECH-BOT" height="300"> 
+  <a href="https://youtube.com/@mMickeymozy"> 
+  <img src="https://github.com/Mickeymozy/Mickey-Tech/blob/main/assets/bot_image.jpg" alt="MICKEY-TECH-BOT" height="300"> 
   </a> 
 </div>
 
@@ -38,7 +38,7 @@ Deploy the bot and easily connect it to your WhatsApp account by pair code. Clic
 
 
 <div align="center">
-  <a href="https://creads-pair-web.onrender.com/" target="_blank">
+  <a href="https://lazack-cred.onrender.com/pair" target="_blank">
     <img src="https://img.shields.io/badge/GET%20PAIR%20CODE-Easy%20Method-ff4d4d?style=for-the-badge" alt="Generate Pair Code"/>
   </a>
 </div>
