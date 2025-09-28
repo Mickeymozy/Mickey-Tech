@@ -59,7 +59,7 @@ const aliveCommand = require('./commands/alive');
 const blurCommand = require('./commands/img-blur');
 const welcomeCommand = require('./commands/welcome');
 const goodbyeCommand = require('./commands/goodbye');
-const githubCommand = require('./commands/github');
+const { githubCommand } = require('./commands/github');
 const { handleAntiBadwordCommand, handleBadwordDetection } = require('./lib/antibadword');
 const antibadwordCommand = require('./commands/antibadword');
 const { handleChatbotCommand, handleChatbotResponse } = require('./commands/chatbot');
@@ -569,7 +569,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
             case userMessage === '.sc':
             case userMessage === '.script':
             case userMessage === '.repo':
-                await githubCommand(sock, chatId);
+                await githubCommand(sock, chatId, message);
                 break;
             case userMessage.startsWith('.antibadword'):
                 if (!isGroup) {
