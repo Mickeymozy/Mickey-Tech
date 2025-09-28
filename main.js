@@ -106,7 +106,6 @@ const sudoCommand = require('./commands/sudo');
 const { miscCommand, handleHeart } = require('./commands/misc');
 const { animeCommand } = require('./commands/anime');
 const updateCommand = require('./commands/update');
-const removebgCommand = require('./commands/removebg');
 const { reminiCommand } = require('./commands/remini');
 const settingsCommand = require('./commands/settings');
 const soraCommand = require('./commands/sora');
