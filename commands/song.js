@@ -1,100 +1,63 @@
-
-
-const yts = require('yt-search');
 const axios = require('axios');
+const yts = require('yt-search');
+const fs = require('fs');
+const path = require('path');
 
-async function fetchAudioFromApis(urlYt, apis) {
-    for (const api of apis) {
-        try {
-            const response = await axios.get(api);
-            const data = response.data;
-            // Try to extract audio URL and title from different API response formats
-            if (data) {
-                if (data.result?.downloadUrl || data.result?.url) {
-                    return {
-                        audioUrl: data.result.downloadUrl || data.result.url,
-                        title: data.result.title || data.result.judul || data.result.title_video || 'audio',
-                    };
-                }
-                // Some APIs may return direct URL at data.url
-                if (data.url) {
-                    return {
-                        audioUrl: data.url,
-                        title: data.title || 'audio',
-                    };
-                }
-            }
-        } catch (e) {
-            // Continue to next API if this one fails
-        }
-    }
-    return null;
-}
-
-async function playCommand(sock, chatId, message) {
+async function songCommand(sock, chatId, message) {
     try {
-        const text = message.message?.conversation || message.message?.extendedTextMessage?.text;
-        const searchQuery = text.split(' ').slice(1).join(' ').trim();
-
-        if (!searchQuery) {
-            return await sock.sendMessage(chatId, {
-                text: 'Please provide a song name or keywords to search.'
-            });
+        const text = message.message?.conversation || message.message?.extendedTextMessage?.text || '';
+        if (!text) {
+            await sock.sendMessage(chatId, { text: 'Usage: .song <song name or YouTube link>' }, { quoted: message });
+            return;
         }
 
-        // Search for the song on YouTube
-        const { videos } = await yts(searchQuery);
-        if (!videos || videos.length === 0) {
-            return await sock.sendMessage(chatId, {
-                text: 'No songs found for your query. Please try a different keyword.'
-            });
+        let video;
+        if (text.includes('youtube.com') || text.includes('youtu.be')) {
+            video = { url: text };
+        } else {
+            const search = await yts(text);
+            if (!search || !search.videos.length) {
+                await sock.sendMessage(chatId, { text: 'No results found.' }, { quoted: message });
+                return;
+            }
+            video = search.videos[0];
         }
 
-        // Pick the first result
-        const video = videos[0];
-        const urlYt = video.url;
-
-        // Inform user that download is starting, with thumbnail
+        // Inform user
         await sock.sendMessage(chatId, {
             image: { url: video.thumbnail },
-            caption: `*${video.title}*\nBy: ${video.author.name}\nDuration: ${video.timestamp}\n\nDownloading audio, please wait...`
-        });
-
-        // List of APIs to try (add more if needed)
-        const apis = [
-            `https://apis.davidcyriltech.my.id/song?url=${urlYt}`,
-            `https://apis-keith.vercel.app/download/mp3?url=${urlYt}`,
-            `https://apis-keith.vercel.app/download/soundcloud?url=${urlYt}`,
-            `https://apis-keith.vercel.app/download/spotify?q=${urlYt}`
-        ];
-
-        // Try all APIs in order
-        const audioData = await fetchAudioFromApis(urlYt, apis);
-
-        if (!audioData || !audioData.audioUrl) {
-            return await sock.sendMessage(chatId, {
-                text: 'Failed to fetch audio from all available APIs. Please try again later.'
-            });
-        }
-
-        // Send the audio file with thumbnail
-        await sock.sendMessage(chatId, {
-            audio: { url: audioData.audioUrl },
-            mimetype: 'audio/mpeg',
-            fileName: `${audioData.title}.mp3`,
-            ptt: false,
-            jpegThumbnail: video.thumbnail
+            caption: `🎵 Downloading: *${video.title}*\n⏱ Duration: ${video.timestamp}`
         }, { quoted: message });
 
-    } catch (error) {
-        console.error('Error in song command:', error);
-        await sock.sendMessage(chatId, {
-            text: 'Download failed due to an error. Please try again later.'
+        // Get Izumi API link
+        const apiUrl = `https://izumiiiiiiii.dpdns.org/downloader/youtube?url=${encodeURIComponent(video.url)}&format=mp3`;
+        
+        
+        const res = await axios.get(apiUrl, {
+            timeout: 30000,
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            }
         });
+
+        if (!res.data || !res.data.result || !res.data.result.download) {
+            throw new Error('Izumi API failed to return a valid link.');
+        }
+
+        const audioData = res.data.result;
+
+        // Send audio directly using the download URL
+        await sock.sendMessage(chatId, {
+            audio: { url: audioData.download },
+            mimetype: 'audio/mpeg',
+            fileName: `${audioData.title || video.title || 'song'}.mp3`,
+            ptt: false
+        }, { quoted: message });
+
+    } catch (err) {
+        console.error('Song command error:', err);
+        await sock.sendMessage(chatId, { text: '❌ Failed to download song.' }, { quoted: message });
     }
 }
 
-module.exports = playCommand;
-
-// Powered by Mickey
-// Credits to Mickey-Tech-Bot
+module.exports = songCommand;

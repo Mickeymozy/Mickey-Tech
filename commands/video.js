@@ -1,99 +1,90 @@
-
 const axios = require('axios');
 const yts = require('yt-search');
 
-module.exports = async function videoCommand(sock, chatId, message) {
-  const sendError = async (msg) => {
-    await sock.sendMessage(chatId, { text: msg }, { quoted: message });
-  };
-  try {
-    // Get search query
-    const rawText = message.message?.conversation || message.message?.extendedTextMessage?.text || '';
-    const searchQuery = rawText.split(' ').slice(1).join(' ').trim();
-    if (!searchQuery) return sendError('Taja jina la video unayotaka kudownload.');
-
-    // Search YouTube
-    let videos;
-    try {
-      ({ videos } = await yts(searchQuery));
-    } catch (err) {
-      return sendError('Samahani, imeshindikana kutafuta video.');
-    }
-    if (!videos || videos.length === 0) return sendError('Samahani, hakuna video zilizopatikana kwa jina hilo.');
-
-    const video = videos[0];
-    const videoId = video.videoId;
-    const videoTitle = video.title;
-    const videoThumbnail = video.thumbnail;
-    // Send thumbnail
-    await sock.sendMessage(chatId, {
-      image: { url: videoThumbnail },
-      caption: `*${videoTitle}*\n\n⏳ Inapakua video yako...`
-    }, { quoted: message });
-
-    // Try APIs for download link (use videoId only)
-    const apis = [
-      `https://api.princetechn.com/api/download/ytdlv2?apikey=prince&url=${videoId}&format=mp4`,
-      `https://bk9.fun/download/alldownload?url=${videoId}`,
-      `https://yt-api-url.example.com/download?videoId=${videoId}`
-    ];
-    let videoDownloadUrl = null;
-    let filename = `${videoTitle}.mp4`;
-
-    for (const apiUrl of apis) {
-      try {
-        const response = await axios.get(apiUrl, {
-          headers: {
-            'User-Agent': 'Mozilla/5.0',
-            'Accept': 'application/json'
-          }
-        });
-        // If API returns a direct download URL, use it
-        if (response.data?.result?.download?.url) {
-          videoDownloadUrl = response.data.result.download.url;
-          filename = response.data.result.download.filename || filename;
-          break;
-        }
-        // If API returns a URL (not direct download), save it as a fallback
-        if (response.data?.url && !videoDownloadUrl) {
-          videoDownloadUrl = response.data.url;
-        }
-      } catch (err) {
-        continue;
-      }
-    }
-
-    if (!videoDownloadUrl) {
-      // Fallback: use ytdl-core to get direct video link
-      try {
-        const ytdl = require('ytdl-core');
-        const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
-        const videoFormats = await ytdl.getInfo(videoUrl);
-        const format = ytdl.chooseFormat(videoFormats.formats, { quality: '18', filter: 'audioandvideo' });
-        if (format && format.url) {
-          videoDownloadUrl = format.url;
-        } else {
-          await sock.sendMessage(chatId, {
-            text: `❌ Samahani, imeshindikana kupata link ya kudownload video. Jaribu tena baadaye au tumia jina tofauti la video.`
-          }, { quoted: message });
-          return;
-        }
-      } catch (err) {
-        await sock.sendMessage(chatId, {
-          text: `❌ Samahani, imeshindikana kudownload video moja kwa moja. (${err.message})`
-        }, { quoted: message });
-        return;
-      }
-    }
-
-    // Send video
-    await sock.sendMessage(chatId, {
-      video: { url: videoDownloadUrl },
-      mimetype: 'video/mp4',
-      fileName: filename,
-      caption: `*${videoTitle}*\n\n✅ Video yako iko tayari! Imedownloadiwa na Mickey-Tech 🤖`
-    }, { quoted: message });
-  } catch (error) {
-    await sendError('Imeshindikana kudownload video: ' + error.message);
-  }
+// Izumi API configuration
+const izumi = {
+    baseURL: "https://izumiiiiiiii.dpdns.org"
 };
+
+async function videoCommand(sock, chatId, message) {
+    try {
+        const text = message.message?.conversation || message.message?.extendedTextMessage?.text;
+        const searchQuery = text.split(' ').slice(1).join(' ').trim();
+        
+        
+        if (!searchQuery) {
+            await sock.sendMessage(chatId, { text: 'What video do you want to download?' }, { quoted: message });
+            return;
+        }
+
+        // Determine if input is a YouTube link
+        let videoUrl = '';
+        let videoTitle = '';
+        let videoThumbnail = '';
+        if (searchQuery.startsWith('http://') || searchQuery.startsWith('https://')) {
+            videoUrl = searchQuery;
+        } else {
+            // Search YouTube for the video
+            const { videos } = await yts(searchQuery);
+            if (!videos || videos.length === 0) {
+                await sock.sendMessage(chatId, { text: 'No videos found!' }, { quoted: message });
+                return;
+            }
+            videoUrl = videos[0].url;
+            videoTitle = videos[0].title;
+            videoThumbnail = videos[0].thumbnail;
+        }
+
+        // Send thumbnail immediately
+        try {
+            const ytId = (videoUrl.match(/(?:youtu\.be\/|v=)([a-zA-Z0-9_-]{11})/) || [])[1];
+            const thumb = videoThumbnail || (ytId ? `https://i.ytimg.com/vi/${ytId}/sddefault.jpg` : undefined);
+            const captionTitle = videoTitle || searchQuery;
+            if (thumb) {
+                await sock.sendMessage(chatId, {
+                    image: { url: thumb },
+                    caption: `*${captionTitle}*\nDownloading...`
+                }, { quoted: message });
+            }
+        } catch (e) { console.error('[VIDEO] thumb error:', e?.message || e); }
+        
+
+        // Validate YouTube URL
+        let urls = videoUrl.match(/(?:https?:\/\/)?(?:youtu\.be\/|(?:www\.|m\.)?youtube\.com\/(?:watch\?v=|v\/|embed\/|shorts\/|playlist\?list=)?)([a-zA-Z0-9_-]{11})/gi);
+        if (!urls) {
+            await sock.sendMessage(chatId, { text: 'This is not a valid YouTube link!' }, { quoted: message });
+            return;
+        }
+
+        // Get Izumi API link for video
+        const apiUrl = `${izumi.baseURL}/downloader/youtube?url=${encodeURIComponent(videoUrl)}&format=720`;
+        
+        const res = await axios.get(apiUrl, {
+            timeout: 30000,
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            }
+        });
+
+        if (!res.data || !res.data.result || !res.data.result.download) {
+            throw new Error('Izumi API failed to return a valid video link.');
+        }
+
+        const videoData = res.data.result;
+
+        // Send video directly using the download URL
+        await sock.sendMessage(chatId, {
+            video: { url: videoData.download },
+            mimetype: 'video/mp4',
+            fileName: `${videoData.title || videoTitle || 'video'}.mp4`,
+            caption: `*${videoData.title || videoTitle || 'Video'}*\n\n> *_Downloaded by mickey-tech*`
+        }, { quoted: message });
+
+
+    } catch (error) {
+        console.error('[VIDEO] Command Error:', error?.message || error);
+        await sock.sendMessage(chatId, { text: 'Download failed: ' + (error?.message || 'Unknown error') }, { quoted: message });
+    }
+}
+
+module.exports = videoCommand; 
