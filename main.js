@@ -108,7 +108,7 @@ const { animeCommand } = require('./commands/anime');
 const updateCommand = require('./commands/update');
 const { reminiCommand } = require('./commands/remini');
 const settingsCommand = require('./commands/settings');
-const soraCommand = require('./commands/sora');
+const updateCommand = require('./commands/update');
 
 
 // Global settings
