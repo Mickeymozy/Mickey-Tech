@@ -226,15 +226,10 @@ async function helpCommand(sock, chatId, message) {
 
 📢 *Join our channel for updates!*`;
 
-  try {
-    await sock.sendMessage(chatId, {
-      text: helpMessage
-    }, { quoted: message });
-  } catch (error) {
-    console.error('💥 Error in help command:', error);
-    await sock.sendMessage(chatId, {
-      text: "⚠️ Samahani, kuna hitilafu katika kutuma orodha ya amri."
-    }, { quoted: message });
+    const r = await client.sendMessage(remoteJid, {
+    image: { url: "https://files.catbox.moe/8sawgv.mp4" }, // Reinstated image URL (make sure it's actually an image)
+    caption: t,
+});
   }
 }
 
