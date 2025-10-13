@@ -7,7 +7,8 @@ const settings = require('../settings');
  * @param {object} message - Quoted message object
  */
 async function helpCommand(sock, chatId, message) {
-  const helpMessage = `
+  try {
+    const helpMessage = `
 ┏━━━[💀 ${settings.botName || '⛓️ Mickey-Tech-Bot'} ]━━━┓ 
 ┃ 👑 Master : ${global.ytch || 'Mickey'}
 ┃ ⚙️ Version: v${settings.version || '2.0.0'} | 👤 Owner: ${settings.botOwner || 'Mickey'}
@@ -226,10 +227,17 @@ async function helpCommand(sock, chatId, message) {
 
 📢 *Join our channel for updates!*`;
 
-    const r = await client.sendMessage(remoteJid, {
-    image: { url: "https://files.catbox.moe/8sawgv.mp4" }, // Reinstated image URL (make sure it's actually an image)
-    caption: t,
-});
+    // Ensure the image URL is valid (should be an image, not .mp4)
+    const imageUrl = "https://files.catbox.moe/8sawgv.jpg"; // Replace with actual image URL
+
+    await sock.sendMessage(chatId, {
+      image: { url: imageUrl },
+      caption: helpMessage,
+      quoted: message
+    });
+
+  } catch (error) {
+    console.error('Error sending help message:', error);
   }
 }
 
